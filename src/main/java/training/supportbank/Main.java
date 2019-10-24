@@ -11,13 +11,25 @@ import java.util.*;
 
 public class Main {
     public static void main(String args[]) throws IOException {
-        Path filePath = Paths.get("Transactions2014.csv");
+
+        Logger logger = LogManager.getLogger();
+
+
+        Path filePath = Paths.get("DodgyTransactions2015.csv");
         List<String> csvTransString = Files.readAllLines(filePath);
+
+        int i = 1;
 
         List<Transaction> transactionList = new ArrayList<>();
         for (String singletrans : csvTransString) {
-            Transaction sortedTrans = new Transaction(singletrans);
-            transactionList.add(sortedTrans);
+            try {
+                Transaction sortedTrans = new Transaction(singletrans);
+                transactionList.add(sortedTrans);
+            } catch (Exception e){
+                logger.debug("Transaction " + i +" could not be processed");
+            }
+
+            i++;
         }
 
 
