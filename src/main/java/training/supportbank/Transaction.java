@@ -1,9 +1,14 @@
 package training.supportbank;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.text.DecimalFormat;
 import java.util.List;
 
 public class Transaction {
+
+    Logger logger = LogManager.getLogger();
 
     private String date;
     private String from;
@@ -17,6 +22,8 @@ public class Transaction {
         from  = splittransactions[1];
         to = splittransactions[2];
         narrative = splittransactions[3];
+
+        logger.error("Something went wrong");
 
         amount = Double.parseDouble(splittransactions[4]);
     }
