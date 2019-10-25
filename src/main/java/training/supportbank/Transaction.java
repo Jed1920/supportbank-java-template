@@ -14,7 +14,10 @@ public class Transaction {
     Logger logger = LogManager.getLogger();
 
     public Transaction (String singletrans) {
+        // Splits the string of a transaction into each element by separating at each comma
         String[] splittransactions = singletrans.split(",");
+
+        // Creates new Fields within the object for each element of a transaction
         date = splittransactions[0];
         from = splittransactions[1];
         to = splittransactions[2];
@@ -22,8 +25,7 @@ public class Transaction {
         try {
             amount = Double.parseDouble(splittransactions[4]);
         } catch (Exception e) {
-            logger.debug("Value in the amount column not registered as digit");
-            amount = 0.0;
+            logger.debug("Value in the amount column " + Double.parseDouble(splittransactions[4]) +" not registered as digit");
 
         }
     }

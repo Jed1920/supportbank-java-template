@@ -10,46 +10,59 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class Main {
-    public static void main(String args[]) throws IOException {
+    public static void main(String args[]) {
 
         Logger logger = LogManager.getLogger();
+        logger.info("SupportBank program began running");
 
 
-        Path filePath = Paths.get("DodgyTransactions2015.csv");
-        List<String> csvTransString = Files.readAllLines(filePath);
+        List<String> csvTransString = new ArrayList<>();
+
+        try {
+            //Imports the csv file and creates a string line by line of the csv file
+            Path filePath = Paths.get("DodgyTransactions2015.csv");
+            csvTransString = Files.readAllLines(filePath);
+
+        } catch (Exception e) {
+            logger.error("File could not be read");
+            System.exit(0);
+        }
 
         int i = 1;
-
         List<Transaction> transactionList = new ArrayList<>();
+        //Loops through each line of the string and creates a Transaction object with Date, From, To, Narrative
+        // and Amount fields
         for (String singletrans : csvTransString) {
             try {
                 Transaction sortedTrans = new Transaction(singletrans);
                 transactionList.add(sortedTrans);
             } catch (Exception e){
-                logger.debug("Transaction " + i +" could not be processed");
+                logger.warn("Transaction on line  " + i +" could not be processed");
             }
-
             i++;
         }
 
-
+        // Loops through each individual transaction and creates a Set containing each name in the From and To section
         Set<String> nameSet = new HashSet<>();
         for (Transaction indivTrans : transactionList) {
             nameSet.add(indivTrans.getFrom());
             nameSet.add(indivTrans.getTo());
         }
 
+        // Converts this set into a usable list
         List<String> nameList = new ArrayList<>(nameSet);
-        HashMap<String, Double> balance = new HashMap<String, Double>();
 
+        // Creates a two Hashmaps connecting a name to an account or a total balance they owe or are owed
         Map<String, Account> listOfAcc = new HashMap<String, Account>();
         Map<String, Double> balanceList = new HashMap<String, Double>();
+
+        // Loops through each name and creates an Account object
         for (String name : nameList) {
             Account holder = new Account(name, transactionList);
             listOfAcc.put(name, holder);
             balanceList.put(name, listOfAcc.get(name).getBalance());
         }
-
+        // Asks for the user to specify whose list of accounts to be viewed
         Scanner askName = new Scanner(System.in);
         String accountName;
         System.out.println("Enter account name");
@@ -57,12 +70,7 @@ public class Main {
         System.out.println((listOfAcc.get(accountName)).getFromTransactions());
         System.out.println((listOfAcc.get(accountName)).getToTransactions());
 
-//        }
-//        public static void balanceOwed() {
         System.out.println(balanceList);
-
-        System.out.println(balance);
-        //System.out.println(nameList);
     }
 }
 
