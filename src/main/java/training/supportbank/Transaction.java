@@ -3,6 +3,10 @@ package training.supportbank;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.text.ParseException;
+import java.util.Date;
+import java.text.SimpleDateFormat;
+
 public class Transaction {
 
     private String date;
@@ -13,26 +17,35 @@ public class Transaction {
 
     Logger logger = LogManager.getLogger();
 
-    public Transaction (String singletrans) {
+    public Transaction(String singletrans) throws ParseException, NumberFormatException {
         // Splits the string of a transaction into each element by separating at each comma
         String[] splittransactions = singletrans.split(",");
 
-        // Creates new Fields within the object for each element of a transaction
-        date = splittransactions[0];
+        // from, to and narrative are nice and boring.
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+
         from = splittransactions[1];
         to = splittransactions[2];
         narrative = splittransactions[3];
+
+        try {
+            Date date1 = formatter.parse(splittransactions[0]);
+            date = formatter.format(date1);
+        } catch (ParseException e) {
+            logger.warn(" '" + splittransactions[0] + "' - " + " in incorrect format so could not be converted to date, is null");
+            date = null;
+        }
+
         try {
             amount = Double.parseDouble(splittransactions[4]);
-        } catch (Exception e) {
-            logger.debug("Value in the amount column " + Double.parseDouble(splittransactions[4]) +" not registered as digit");
-
+        } catch (NumberFormatException e) {
+            logger.error(" '" + splittransactions[4] + "' - " + " in incorrect format so could not be converted to an amount");
+            throw e;
         }
     }
 
     @Override
     public String toString () {
-
         String printout = date + " " + from + " " + to + " " + narrative + " " + amount + "\n";
         return printout;
     }

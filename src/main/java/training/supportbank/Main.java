@@ -2,8 +2,6 @@ package training.supportbank;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -13,7 +11,7 @@ public class Main {
     public static void main(String args[]) {
 
         Logger logger = LogManager.getLogger();
-        logger.info("SupportBank program began running");
+        logger.info("SupportBank program run");
 
 
         List<String> csvTransString = new ArrayList<>();
@@ -24,22 +22,24 @@ public class Main {
             csvTransString = Files.readAllLines(filePath);
 
         } catch (Exception e) {
-            logger.error("File could not be read");
+            logger.error("File could not be read", e);
             System.exit(0);
         }
 
-        int i = 1;
         List<Transaction> transactionList = new ArrayList<>();
-        //Loops through each line of the string and creates a Transaction object with Date, From, To, Narrative
-        // and Amount fields
-        for (String singletrans : csvTransString) {
+        Set<String> unknownBalances = new HashSet<>();
+        for (int lineNumber = 1; lineNumber < csvTransString.size(); lineNumber++) {
+            String singletrans = csvTransString.get(lineNumber);
+
             try {
                 Transaction sortedTrans = new Transaction(singletrans);
                 transactionList.add(sortedTrans);
-            } catch (Exception e){
-                logger.warn("Transaction on line  " + i +" could not be processed");
+            } catch (Exception e) {
+                String[] splittransactions = singletrans.split(",");
+                unknownBalances.add(splittransactions[1]);
+                unknownBalances.add(splittransactions[2]);
+                logger.error(String.format("Failed to create transaction from line %d.  Transaction skipped.", lineNumber), e);
             }
-            i++;
         }
 
         // Loops through each individual transaction and creates a Set containing each name in the From and To section
@@ -56,21 +56,31 @@ public class Main {
         Map<String, Account> listOfAcc = new HashMap<String, Account>();
         Map<String, Double> balanceList = new HashMap<String, Double>();
 
+        Map<String, String> unknownBalanceList = new HashMap<String, String>();
+
         // Loops through each name and creates an Account object
         for (String name : nameList) {
             Account holder = new Account(name, transactionList);
             listOfAcc.put(name, holder);
-            balanceList.put(name, listOfAcc.get(name).getBalance());
+            if (!unknownBalances.contains(name)) {
+                balanceList.put(name, listOfAcc.get(name).getBalance());
+            } else {
+                unknownBalanceList.put(name, "??? " + String.valueOf(listOfAcc.get(name).getBalance()) + " ???");
+            }
         }
         // Asks for the user to specify whose list of accounts to be viewed
         Scanner askName = new Scanner(System.in);
         String accountName;
         System.out.println("Enter account name");
         accountName = askName.nextLine();
+
         System.out.println((listOfAcc.get(accountName)).getFromTransactions());
         System.out.println((listOfAcc.get(accountName)).getToTransactions());
 
         System.out.println(balanceList);
+        System.out.println(unknownBalanceList);
+        logger.warn("Balances of " + unknownBalances + " not produced due to issues with amount format from file");
+        logger.info(transactionList.size() + " of " +  (csvTransString.size()-1) + " transactions processed");
     }
 }
 
