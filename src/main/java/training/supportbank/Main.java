@@ -1,22 +1,19 @@
 package training.supportbank;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class Main {
     public static void main(String args[]) throws IOException {
-        // Your code here!
+
         Path filePath = Paths.get("Transactions2014.csv");
         List<String> strCSVTrans = Files.readAllLines(filePath);
         List <Transaction> transactionList = new ArrayList<>();
         Set<String> namelist = new HashSet<>();
+        HashMap<String, Accounts> accounts = new HashMap<>();
 
         for (String strIndivTrans: strCSVTrans){
             Transaction orderedIndivTrans = new Transaction(strIndivTrans);
@@ -24,15 +21,25 @@ public class Main {
 
             namelist.add(orderedIndivTrans.getFrom());
             namelist.add(orderedIndivTrans.getTo());
-
-//            System.out.println(orderedIndivTrans);
         }
         for (String name:namelist){
+              Accounts indivAccount = new Accounts(name, transactionList);
+                  accounts.put(name,indivAccount);
+                  System.out.println(String.format("| %-10s = %#5.2f |", name,indivAccount.getBalance()));
+            }
 
+        Scanner reader = new Scanner(System.in);  // Reading from System.in
+        System.out.println("Enter a Name ");
+        String selectedName = reader.nextLine();
+
+        System.out.println("Sent Transactions");
+        for(Transaction transactions:(accounts.get(selectedName).getFromTransactions())) {
+            System.out.println(transactions);
+        }
+        System.out.println("Received Transactions");
+        for(Transaction transactions:(accounts.get(selectedName).getToTransactions())) {
+            System.out.println(transactions);
         }
 
-
-
-        System.out.println(transactionList);
     }
 }
