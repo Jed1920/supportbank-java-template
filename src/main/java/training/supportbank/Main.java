@@ -1,16 +1,29 @@
 package training.supportbank;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
+
 public class Main {
+
     public static void main(String args[]) throws IOException {
 
-        Path filePath = Paths.get("Transactions2014.csv");
-        List<String> strCSVTrans = Files.readAllLines(filePath);
+        Logger logger = LogManager.getLogger();
+        logger.info("SupportBank program run");
+
+//        try {
+            Path filePath = Paths.get("Transactions2014.csv");
+            List<String> strCSVTrans = Files.readAllLines(filePath);
+//        } catch (Exception e){
+//            logger.fatal("Could not load file" + e );
+//        }
+
         List <Transaction> transactionList = new ArrayList<>();
         Set<String> namelist = new HashSet<>();
         HashMap<String, Accounts> accounts = new HashMap<>();

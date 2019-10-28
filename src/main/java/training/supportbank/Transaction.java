@@ -1,7 +1,8 @@
 package training.supportbank;
 
-import java.lang.reflect.Array;
-import java.util.Arrays;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Transaction {
 
@@ -14,17 +15,21 @@ public class Transaction {
     String splitTransactions [];
     public Transaction (String strIndivTrans){
 
+        Logger logger = LogManager.getLogger();
+
         String splitTransactions [] = strIndivTrans.split(",");
 
         date = splitTransactions[0];
+
         from = splitTransactions[1];
         to = splitTransactions[2];
         narrative = splitTransactions[3];
         try {
             amount = Double.parseDouble(splitTransactions[4]);
         } catch (NumberFormatException e) {
+            logger.info("Value in amount not valid");
             amount = 0.0;
-            }
+        }
     }
     @Override
     public String toString(){
